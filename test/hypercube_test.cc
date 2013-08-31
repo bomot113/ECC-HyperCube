@@ -5,32 +5,22 @@
 #include <memory>
 using namespace std;
 
-TEST(HypercubeTest, Initialization) {
-  map<u_int,bool> fixedBits;
-  unique_ptr<HyperCube> hCube(new HyperCube(4, fixedBits));
-  EXPECT_EQ((u_int)16, hCube->size());
-};
-
-TEST(HypercubeTest, SetFixedBits) {
-  map<u_int,bool> fixedBits;
-  fixedBits[2]=1;
-  fixedBits[3]=0;
-  unique_ptr<HyperCube> hCube(new HyperCube(4, fixedBits));
+TEST(HypercubeTest, InitializationWithElements) {
+  vector<BitVal> fixedBits;
+  fixedBits.push_back(std::make_pair(0,0));
+  fixedBits.push_back(std::make_pair(3,1));
+  vector<u_int> elements;
+  u_int arr[4] = {9,11,13,15};
+  elements.assign(arr, arr+4);
+  
+  unique_ptr<HyperCube> hCube(new HyperCube(4, std::move(fixedBits), elements));
+  vector<u_int>const& actual = hCube->getElements();
+  
   vector<u_int> expected;
-  u_int arr[4]={4,5,6,7};
-  expected.assign(arr,arr+4);
-  vector<u_int>const& actual=hCube->getElements();
+  u_int arr1[4]={8,10,12,14};
+  expected.assign(arr1,arr1+4);
+  
   EXPECT_EQ(expected, actual);
+
 };
 
-TEST(HypercubeTest, GetElements) {
-  map<u_int,bool> fixedBits;
-  fixedBits[0]=0;
-  fixedBits[3]=1;
-  unique_ptr<HyperCube> hCube(new HyperCube(4, fixedBits));
-  vector<u_int>const& cubes = hCube->getElements();
-  vector<u_int> expected;
-  u_int arr[4]={8,10,12,14};
-  expected.assign(arr,arr+4);
-  EXPECT_EQ(expected, cubes);
-};

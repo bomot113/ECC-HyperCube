@@ -31,7 +31,8 @@ TEST(CubeCodeTest, Initialization) {
   equalVector(cube2bitsV, act_cube2bits);
   // Check cubesInLevel property
   u_int cubesInLevel[] = {0,1,5,11,15};
-  vector<u_int> cubesInLevelV(cubesInLevel, cubesInLevel+sizeof(cubesInLevel)/sizeof(u_int));
+  vector<u_int> cubesInLevelV(cubesInLevel, 
+                  cubesInLevel+sizeof(cubesInLevel)/sizeof(u_int));
   vector<u_int> act_cubesInLevel = code->getCubesInLevel();
   equalVector(act_cubesInLevel, cubesInLevelV);
   // Check data length
@@ -42,10 +43,10 @@ TEST(CubeCodeTest, Initialization) {
   unique_ptr<UnitCube> const& uCube = cubes[7];
   vector<unique_ptr<HyperCube> > const& pHCubes = uCube->getParallelHCubes();
   vector<unique_ptr<HyperCube> >::const_iterator iter = pHCubes.begin();
-  map<u_int,bool>& fBits = (*iter)->getFixedBits();
-  EXPECT_EQ(1,fBits[0]);
-  EXPECT_EQ(1,fBits[1]);
-  EXPECT_EQ(1,fBits[2]);
+  vector<BitVal>& fBits = (*iter)->getFixedBits();
+  EXPECT_EQ(1,fBits[0].second);
+  EXPECT_EQ(1,fBits[1].second);
+  EXPECT_EQ(1,fBits[2].second);
 };
 
 TEST(CubeCodeTest, GetBitByIndex){
@@ -72,25 +73,6 @@ TEST(CubeCodeTest, SetBitByIndex){
   EXPECT_EQ((u_int)18432, code.to_ulong());
   cube->setBitByIndex(code, 1, 1);
   EXPECT_EQ((u_int)26624, code.to_ulong());
-};
-
-TEST(CubeCodeTest, CalcParityFromSourceBit){
-  unique_ptr<CubeCode> cube(new CubeCode(4,1));
-  // 18731 = '100100100101011'
-  BITSET code= BITSET(string("100100100101011"));
-  map<u_int,bool> fixedBits;
-  fixedBits[0] = 0;
-  fixedBits[3] = 1;
-  unique_ptr<HyperCube> hCube(new HyperCube(4, fixedBits));
-  int parity = cube->calcParityFromSourceBit(code, *hCube);
-  // 18731 = '100100100101011'
-  //           ^   ^^    ^ 
-  EXPECT_EQ(0, parity);
-  fixedBits[0] = 1;
-  fixedBits[3] = 0;
-  hCube.reset(new HyperCube(4, fixedBits));
-  parity = cube->calcParityFromSourceBit(code, *hCube);
-  EXPECT_EQ(0, parity);
 };
 
 TEST(CubeCodeTest, GetCodeFromParity){
@@ -214,8 +196,8 @@ TEST(CubeCodeTest, Decoding3BitErrorCodeWith2ParityDims){
 
 TEST(CubeCodeTest, EncodingDecodingLongCode){
   srand(time(0));
-  unsigned int cwDims = 14;
-  unsigned int pDims = 7;
+  unsigned int cwDims = 15;
+  unsigned int pDims = 8;
   unique_ptr<CubeCode> cube(new CubeCode(cwDims, pDims));
   u_int errs = (1<<pDims)-1;
   string rand_bits = random(cube->getDataLength()); 

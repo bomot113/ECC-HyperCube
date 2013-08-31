@@ -12,17 +12,19 @@ TEST(UnitCubeTest, Initialization) {
   vector<unique_ptr<HyperCube> > const& pHCubes = uCube->getParallelHCubes();
   vector<unique_ptr<HyperCube> >::const_iterator iter;
   iter = pHCubes.begin();
-  map<u_int,bool>& fBits = (*iter)->getFixedBits();
-  EXPECT_EQ(1,fBits[0]);
-  EXPECT_EQ(1,fBits[2]);
+  vector<BitVal>& fBits = (*iter)->getFixedBits();
+  EXPECT_EQ(1,fBits[0].second);
+  EXPECT_EQ(1,fBits[1].second);
+  vector<u_int> s;
+  s = (*iter)->getElements();
   iter++;
   fBits = (*iter)->getFixedBits();
-  EXPECT_EQ(1,fBits[0]);
-  EXPECT_EQ(0,fBits[2]);
+  EXPECT_EQ(1,fBits[0].second);
+  EXPECT_EQ(0,fBits[1].second);
   iter++;
   fBits = (*iter)->getFixedBits();
-  EXPECT_EQ(0,fBits[0]);
-  EXPECT_EQ(1,fBits[2]);
+  EXPECT_EQ(0,fBits[0].second);
+  EXPECT_EQ(1,fBits[1].second);
 };
 
 TEST(UnitCubeTest, GetParallelHCubes3Bits) {
@@ -33,19 +35,27 @@ TEST(UnitCubeTest, GetParallelHCubes3Bits) {
   EXPECT_EQ((unsigned int)3, pHCubes.size());
   
   vector<unique_ptr<HyperCube> >::const_iterator iter = pHCubes.begin();
-  map<u_int,bool>& fBits = (*iter)->getFixedBits();
-  EXPECT_EQ(1,fBits[0]);
-  EXPECT_EQ(1,fBits[1]);
-  EXPECT_EQ(1,fBits[2]);
+  vector<BitVal>& fBits = (*iter)->getFixedBits();
+  EXPECT_EQ(1,fBits[0].second);
+  EXPECT_EQ(1,fBits[1].second);
+  EXPECT_EQ(1,fBits[2].second);
   iter++;
   fBits = (*iter)->getFixedBits();
-  EXPECT_EQ(1,fBits[0]);
-  EXPECT_EQ(1,fBits[1]);
-  EXPECT_EQ(0,fBits[2]);
+  EXPECT_EQ(1,fBits[0].second);
+  EXPECT_EQ(1,fBits[1].second);
+  EXPECT_EQ(0,fBits[2].second);
   iter++;
   fBits = (*iter)->getFixedBits();
-  EXPECT_EQ(1,fBits[0]);
-  EXPECT_EQ(0,fBits[1]);
-  EXPECT_EQ(1,fBits[2]);
+  EXPECT_EQ(1,fBits[0].second);
+  EXPECT_EQ(0,fBits[1].second);
+  EXPECT_EQ(1,fBits[2].second);
+};
+
+TEST(UnitCubeTest, GetElements){
+  unique_ptr<UnitCube> uCube(new UnitCube(4, 5));
+  vector<u_int> elements = uCube->getElements();
+  int arr[] = {5,7,13,15};
+  vector<u_int> exp_elements(arr, arr + sizeof(arr)/sizeof(u_int));
+  EXPECT_EQ(elements, exp_elements); 
 };
 

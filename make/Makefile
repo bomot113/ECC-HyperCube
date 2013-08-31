@@ -86,9 +86,9 @@ unitcube_test.o : $(USER_DIR)/test/unitcube_test.cc \
                      $(USER_DIR)/unitcube.h $(USER_DIR)/hypercube.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/test/unitcube_test.cc
 
-cubecode_test.o : $(USER_DIR)/test/cubecode_test.cc $(USER_DIR)/unitcube.h  \
+cubecode_bitset_test.o : $(USER_DIR)/test/cubecode_bitset_test.cc $(USER_DIR)/unitcube.h  \
                      $(USER_DIR)/cubecode.h $(USER_DIR)/hypercube.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/test/cubecode_test.cc
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/test/cubecode_bitset_test.cc
 
-cubecode_unittest : cubecode_test.o unitcube_test.o hypercube_test.o cubecode.o hypercube.o unitcube.o gtest_main.a
+cubecode_unittest : cubecode_bitset_test.o unitcube_test.o hypercube_test.o cubecode.o hypercube.o unitcube.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
