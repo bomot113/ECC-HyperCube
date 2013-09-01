@@ -16,5 +16,3 @@
 *.lai
 *.la
 *.a
-# GTEST
-gtest*

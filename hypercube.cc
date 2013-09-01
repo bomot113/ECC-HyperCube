@@ -1,4 +1,4 @@
-#include "HyperCube.h"
+#include "hypercube.h"
 #include <algorithm>
 
 HyperCube::HyperCube(int dims, vector<BitVal> const& fixedBits, vector<u_int> const& elements):_dims(dims) {
