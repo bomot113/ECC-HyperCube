@@ -1,4 +1,4 @@
-#include "../hypercube.h"
+#include "includes/hypercube.h"
 #include "gtest/gtest.h"
 #include <list>
 #include <map>
