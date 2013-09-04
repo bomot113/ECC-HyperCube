@@ -1,13 +1,12 @@
 #include "includes/hypercube.h"
 #include <algorithm>
 
-HyperCube::HyperCube(int dims, vector<BitVal> const& fixedBits, vector<u_int> const& elements):_dims(dims) {
-  _fixedBits = fixedBits;
-  _elements = elements;
+HyperCube::HyperCube(int dims, vector<BitVal> const& fixedBits, vector<u_int> const& elements):_dims(dims), _fixedBits(fixedBits), _elements(elements) {
   for(auto& bitval:_fixedBits){
     u_int mask = 1<<bitval.first;
-    if (!bitval.second) {
-      for(auto& item:_elements) {
+    bool bit_1 = bitval.second;
+    if (!bit_1) {
+      for(auto& item:_elements){
         item &= (~mask);
       };
     };

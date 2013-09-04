@@ -28,10 +28,9 @@ CubeCode::CubeCode(unsigned int cwDims, unsigned int pDims):
     }
   }
   swap(_cubesInLevel, cubesInLevel);
-
+  
   // data length = codeword length - parity length
   _dataLength = _cubesInLevel[_cwDims-_pDims]; 
-  
   // Init parallel HyperCubes   
   for(u_int bitIndex=0;bitIndex<_dataLength;bitIndex++){
     u_int cubeIndex = _bit2Cubes[bitIndex];

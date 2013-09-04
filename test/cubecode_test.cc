@@ -197,7 +197,7 @@ TEST(CubeCodeTest, Decoding3BitErrorCodeWith2ParityDims){
 TEST(CubeCodeTest, EncodingDecodingLongCode){
   srand(time(0));
   unsigned int cwDims = 15;
-  unsigned int pDims = 8;
+  unsigned int pDims = 7;
   unique_ptr<CubeCode> cube(new CubeCode(cwDims, pDims));
   u_int errs = (1<<pDims)-1;
   string rand_bits = random(cube->getDataLength()); 
