@@ -1,4 +1,4 @@
 ECC-HyperCube
 =============
 
-Error Correcting Code (Reed Mullers) algorithm based on HyperCubes
+Fast algorithm for encoding and decoding Reed Muller Error Correcting Codes based on HyperCubes
