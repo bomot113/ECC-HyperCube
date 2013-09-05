@@ -18,9 +18,14 @@ CPPFLAGS += -I$(GTEST_DIR)/include -I$(BOOST_DIR)
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g -Wall -Wextra -fms-extensions -O3 -std=c++0x 
 
+# Flags passed to linker
+LDFLAGS = -pthread
+
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
-    CCFLAGS += -stdlib=libc++ 
+    CXX=c++
+    CXXFLAGS += -stdlib=libc++ 
+    LDFLAGS = -lpthread
 endif
 
 # created to the list.
@@ -87,5 +92,5 @@ unitcube_test.o : $(USER_DIR)/test/unitcube_test.cc $(INCLUDES_DIR)/unitcube.h  
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/test/unitcube_test.cc
 
 cubecode_unittest : cubecode_test.o hypercube_test.o unitcube_test.o cubecode.o hypercube.o unitcube.o gtest_main.a
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -pthread   $^ -o $@ 
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS)  $^ -o $@ 
 
