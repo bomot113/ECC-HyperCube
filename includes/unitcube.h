@@ -7,7 +7,7 @@ class UnitCube: public HyperCube {
     vector<unique_ptr<HyperCube> > _parallelHCubes; 
     vector<map<u_int,bool> > _getParallelHCubes(u_int bits, map<u_int,bool> fixedBits);
   public:
-    UnitCube(unsigned int dims, u_int cubeIndex);
+    UnitCube(unsigned int dims, u_int cubeIndex,bool isCached=false);
     void initParallelHCubes(u_int limit);
     vector<unique_ptr<HyperCube> > const& getParallelHCubes() const; 
     virtual ~UnitCube();

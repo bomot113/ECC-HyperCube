@@ -6,6 +6,7 @@ class CubeCode {
   private:
     unsigned int _cwDims;
     unsigned int _pDims;
+    bool _isCached;
     u_int _cwLength;
     u_int _dataLength;
     u_int _votes;
@@ -14,9 +15,9 @@ class CubeCode {
     vector<u_int> _cubesInLevel;
     vector<u_int> _bit2Cubes;
     vector<u_int> _cube2Bits;
+
   public:
-    
-    CubeCode(unsigned int cwDims, unsigned int pDims);
+    CubeCode(unsigned int cwDims, unsigned int pDims, bool isCached=false);
     bool getBitByIndex(BITSET const & code, u_int index) const;
     void setBitByIndex(BITSET& code, u_int index, bool bit) const;
     u_int getDataLength();

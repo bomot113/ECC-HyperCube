@@ -11,11 +11,16 @@ class HyperCube {
   protected:
     int _dims;
     vector<BitVal> _fixedBits;
-    vector<u_int> _elements;
+    vector<u_int>const& _elements;
+    bool _isCached;
+    vector<u_int> _cachedElements;
+    void generateElements(vector<u_int>& v);
   public:
-    HyperCube(int dims, vector<BitVal> const& fixedBits, vector<u_int> const& elements);
+    HyperCube(int dims, vector<BitVal> const& fixedBits,
+                        vector<u_int> const& elements=vector<u_int>(),
+                        bool isCached=false);
     u_int size();
-    vector<u_int> const& getElements() const;
+    void getElements(vector<u_int>& v);
     vector<BitVal>& getFixedBits();
     virtual ~HyperCube();
 };

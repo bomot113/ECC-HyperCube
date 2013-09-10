@@ -3,8 +3,8 @@
 #include <string>
 #include <algorithm>
 
-CubeCode::CubeCode(unsigned int cwDims, unsigned int pDims):
-              _cwDims(cwDims), _pDims(pDims)
+CubeCode::CubeCode(unsigned int cwDims, unsigned int pDims, bool isCached):
+              _cwDims(cwDims), _pDims(pDims), _isCached(isCached)
 {
   _cwLength = (1<<_cwDims)-1;
   _votes = (1<<(_pDims+1))-1;
