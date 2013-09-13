@@ -91,7 +91,7 @@ unitcube_test.o : $(USER_DIR)/test/unitcube_test.cc $(INCLUDES_DIR)/unitcube.h  
                      $(INCLUDES_DIR)/hypercube.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/test/unitcube_test.cc
 
-#cubecode_unittest : cubecode_test.o hypercube_test.o unitcube_test.o cubecode.o hypercube.o unitcube.o gtest_main.a
-cubecode_unittest : unitcube_test.o unitcube.o hypercube_test.o hypercube.o gtest_main.a
+cubecode_unittest : cubecode_test.o hypercube_test.o unitcube_test.o cubecode.o hypercube.o unitcube.o gtest_main.a
+#cubecode_unittest : unitcube_test.o unitcube.o hypercube_test.o hypercube.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS)  $^ -o $@ 
 

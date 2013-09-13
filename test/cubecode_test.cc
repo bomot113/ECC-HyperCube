@@ -43,12 +43,45 @@ TEST(CubeCodeTest, Initialization) {
   unique_ptr<UnitCube> const& uCube = cubes[7];
   vector<unique_ptr<HyperCube> > const& pHCubes = uCube->getParallelHCubes();
   vector<unique_ptr<HyperCube> >::const_iterator iter = pHCubes.begin();
-  vector<BitVal>& fBits = (*iter)->getFixedBits();
+  vector<BitVal>const& fBits = (*iter)->getFixedBits();
   EXPECT_EQ(1,fBits[0].second);
   EXPECT_EQ(1,fBits[1].second);
   EXPECT_EQ(1,fBits[2].second);
 };
 
+TEST(CubeCodeTest, InitializationFullCache) {
+  unique_ptr<CubeCode> code(new CubeCode(4,1,CACHE::FULL));
+  
+  // Check the UnitCubes and their ParallelHCubes
+  vector<unique_ptr<UnitCube> > const& cubes = code->getUnitCubes();
+  EXPECT_EQ(nullptr, cubes[0]);
+  unique_ptr<UnitCube> const& uCube = cubes[7];
+  EXPECT_TRUE(uCube->isCached());
+  vector<unique_ptr<HyperCube> > const& pHCubes = uCube->getParallelHCubes();
+  vector<unique_ptr<HyperCube> >::const_iterator iter = pHCubes.begin();
+  vector<BitVal>const& fBits = (*iter)->getFixedBits();
+  EXPECT_TRUE((*iter)->isCached());
+  EXPECT_EQ(1,fBits[0].second);
+  EXPECT_EQ(1,fBits[1].second);
+  EXPECT_EQ(1,fBits[2].second);
+};
+
+TEST(CubeCodeTest, InitializationPartialCache) {
+  unique_ptr<CubeCode> code(new CubeCode(4,1,CACHE::PARTIAL));
+  
+  // Check the UnitCubes and their ParallelHCubes
+  vector<unique_ptr<UnitCube> > const& cubes = code->getUnitCubes();
+  EXPECT_EQ(nullptr, cubes[0]);
+  unique_ptr<UnitCube> const& uCube = cubes[7];
+  EXPECT_TRUE(uCube->isCached());
+  vector<unique_ptr<HyperCube> > const& pHCubes = uCube->getParallelHCubes();
+  vector<unique_ptr<HyperCube> >::const_iterator iter = pHCubes.begin();
+  vector<BitVal>const& fBits = (*iter)->getFixedBits();
+  EXPECT_FALSE((*iter)->isCached());
+  EXPECT_EQ(1,fBits[0].second);
+  EXPECT_EQ(1,fBits[1].second);
+  EXPECT_EQ(1,fBits[2].second);
+};
 TEST(CubeCodeTest, GetBitByIndex){
   unique_ptr<CubeCode> cube(new CubeCode(4,1));
   // 18720 = '100100100100000'
@@ -198,7 +231,7 @@ TEST(CubeCodeTest, EncodingDecodingLongCode){
   srand(time(0));
   unsigned int cwDims = 15;
   unsigned int pDims = 7;
-  unique_ptr<CubeCode> cube(new CubeCode(cwDims, pDims,true));
+  unique_ptr<CubeCode> cube(new CubeCode(cwDims, pDims,CACHE::FULL));
   u_int errs = (1<<pDims)-1;
   string rand_bits = random(cube->getDataLength()); 
   BITSET data(rand_bits);
@@ -207,5 +240,6 @@ TEST(CubeCodeTest, EncodingDecodingLongCode){
   BITSET decoded = cube->decode(received);
   EXPECT_EQ(data, decoded);
 };
+ 
 
 

@@ -16,3 +16,14 @@
 *.lai
 *.la
 *.a
+
+# project file
+.cproject
+.project
+.settings/
+make/.cproject
+make/.project
+
+# binary files
+test/cubecode_unittest
+cubecode

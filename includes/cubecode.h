@@ -1,12 +1,11 @@
 #include "unitcube.h"
 #include <memory>
 using namespace std;
-
 class CubeCode {
   private:
     unsigned int _cwDims;
     unsigned int _pDims;
-    bool _isCached;
+    CACHE _caType;
     u_int _cwLength;
     u_int _dataLength;
     u_int _votes;
@@ -17,7 +16,7 @@ class CubeCode {
     vector<u_int> _cube2Bits;
 
   public:
-    CubeCode(unsigned int cwDims, unsigned int pDims, bool isCached=false);
+    CubeCode(unsigned int cwDims, unsigned int pDims, CACHE caType=CACHE::NONE);
     bool getBitByIndex(BITSET const & code, u_int index) const;
     void setBitByIndex(BITSET& code, u_int index, bool bit) const;
     u_int getDataLength();
@@ -26,7 +25,7 @@ class CubeCode {
     BITSET encode(BITSET code) const;
     BITSET decode(BITSET received) const;
     BITSET getCodeFromParity(BITSET parity, u_int dataLength) const;
-    bool calcParityFromSourceBit(BITSET const& code, HyperCube const& hCube) const;
+    bool calcParityFromSourceBit(BITSET const& code, HyperCube& hCube) const;
      
     vector<u_int>  const& getBit2Cubes();
     vector<u_int> const& getCube2Bits();

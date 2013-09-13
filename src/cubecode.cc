@@ -3,47 +3,60 @@
 #include <string>
 #include <algorithm>
 
-CubeCode::CubeCode(unsigned int cwDims, unsigned int pDims, bool isCached):
-              _cwDims(cwDims), _pDims(pDims), _isCached(isCached)
+CubeCode::CubeCode(unsigned int cwDims, unsigned int pDims, CACHE caType)
+        :_cwDims(cwDims), _pDims(pDims), _caType(caType)
 {
   _cwLength = (1<<_cwDims)-1;
   _votes = (1<<(_pDims+1))-1;
   _neededVotes = 1<<_pDims;
- 
+  // Establishing caching mode
+  bool unitCubeCached = false;
+  bool parallelCubeCached = false;
+  switch(_caType){
+    case CACHE::PARTIAL:
+      unitCubeCached=true;
+      break;
+    case CACHE::FULL:
+      unitCubeCached=true;
+      parallelCubeCached=true;
+      break;
+    default:
+      break;
+  }; 
+
   // initialize UnitCubes
   _unitCubes.push_back(nullptr); // unit cube 0 doesn't exist
   for(u_int i=1;i<_cwLength+1;i++){
-    unique_ptr<UnitCube> uCube(new UnitCube(_cwDims, i));
+    unique_ptr<UnitCube> uCube(new UnitCube(_cwDims, i, unitCubeCached));
     _unitCubes.push_back(std::move(uCube));
   }
-
+  
   // initialize _bit2cubes Mapping and cubesInLevel
-  vector<u_int> cubesInLevel(_cwDims+1,0);
+  _cubesInLevel=vector<u_int>(_cwDims+1,0);
   for(unsigned int i=0;i<_cwDims;i++){
     vector<u_int> uCubes;
     getUnitCubes(i, uCubes);
-    cubesInLevel[i+1] = cubesInLevel[i]+uCubes.size();
+    _cubesInLevel[i+1] = _cubesInLevel[i]+uCubes.size();
     for(auto& item:uCubes){
       _bit2Cubes.push_back(item);
     }
   }
-  swap(_cubesInLevel, cubesInLevel);
   
   // data length = codeword length - parity length
   _dataLength = _cubesInLevel[_cwDims-_pDims]; 
+  
   // Init parallel HyperCubes   
   for(u_int bitIndex=0;bitIndex<_dataLength;bitIndex++){
     u_int cubeIndex = _bit2Cubes[bitIndex];
-    _unitCubes[cubeIndex]->initParallelHCubes(_votes);
+    _unitCubes[cubeIndex]->initParallelHCubes(_votes, parallelCubeCached);
   }
 
   // Initialize cube2Bits mapping
-  vector<u_int> cube2Bits(_cwLength+1, 0);
+  _cube2Bits=vector<u_int>(_cwLength+1, 0);
   for(unsigned int i=0;i<_cwLength;i++){
     u_int cubeIndex = _bit2Cubes[i];
-    cube2Bits[cubeIndex] = i;
+    _cube2Bits[cubeIndex] = i;
   }
-  swap(_cube2Bits,cube2Bits);
 
 };
 
@@ -100,7 +113,8 @@ BITSET CubeCode::getCodeFromParity(BITSET parity, u_int dataLength) const{
   for(u_int i=0;i<dataLength;i++){
     u_int cubeIndex = _bit2Cubes[i];
     UnitCube* uCube = _unitCubes[cubeIndex].get();
-    vector<u_int>const& subUCubes = (*uCube).getElements();
+    vector<u_int> subUCubes;
+    uCube->getElements(subUCubes);
     bool sourceBit = 0;
     u_int bitIndex=0;
     for (auto& item:subUCubes){
@@ -114,14 +128,15 @@ BITSET CubeCode::getCodeFromParity(BITSET parity, u_int dataLength) const{
   return code;
 };
 
-bool CubeCode::calcParityFromSourceBit(BITSET const& code, HyperCube const& hCube) const{
-  vector<u_int> const& uCubes = hCube.getElements();
+bool CubeCode::calcParityFromSourceBit(BITSET const& code, HyperCube& hCube) const{
+  vector<u_int> uCubes;
+  hCube.getElements(uCubes);
   u_int bitIndex;
   bool bit = 0;
   bool parity=0;
   for(auto& item:uCubes){
     bitIndex = _cube2Bits[item];
-   bit = getBitByIndex(code, bitIndex);
+    bit = getBitByIndex(code, bitIndex);
     parity ^= bit;
   }
   return parity;
@@ -158,7 +173,8 @@ BITSET CubeCode::decode(BITSET received) const{
       for(bitIndex=_cubesInLevel[dim];bitIndex<_cubesInLevel[dim+1];bitIndex++){
         cubeIndex = _bit2Cubes[bitIndex];
         UnitCube* uCube = _unitCubes[cubeIndex].get();
-        vector<unique_ptr<HyperCube> > const& parallelCubes = uCube->getParallelHCubes();
+        vector<unique_ptr<HyperCube> > const& parallelCubes 
+                                          = uCube->getParallelHCubes();
         // Voting
         parityBit = 0;
         u_int vote[] = {0,0};
@@ -175,9 +191,11 @@ BITSET CubeCode::decode(BITSET received) const{
           setBitByIndex(fixedParity, bitIndex, 1);
         };
       };
+
       // update parity
       parity|=fixedParity;
       BITSET mask(fixedParity);
+
       // Because the lower dim will only need pDims dims to fix
       // itself, we will travel through pDims-1 higher Dims to change.
       for(upperDim=dim+1;upperDim<(dim+_pDims);upperDim++){
@@ -185,7 +203,8 @@ BITSET CubeCode::decode(BITSET received) const{
             bitIndex<_cubesInLevel[upperDim+1];bitIndex++){
           cubeIndex = _bit2Cubes[bitIndex];
           UnitCube* uCube = _unitCubes[cubeIndex].get();
-          vector<u_int> const& subUCubes = (*uCube).getElements();
+          vector<u_int> subUCubes;
+          uCube->getElements(subUCubes);
           sourceBit = 0;
           for (auto& cube:subUCubes){
             sourceBit ^= getBitByIndex(mask, _cube2Bits[cube]);
@@ -199,6 +218,7 @@ BITSET CubeCode::decode(BITSET received) const{
     };
     code = getCodeFromParity(parity,_dataLength);
   };
+
   // shrink parity bits and return only data bits
   BITSET result = code>>(_cwLength-_dataLength);
   result.resize(_dataLength);

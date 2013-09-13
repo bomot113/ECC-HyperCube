@@ -1,24 +1,30 @@
 #include "includes/hypercube.h"
 #include <algorithm>
+vector<u_int> const HyperCube::_emptyElements = vector<u_int>();
 
-HyperCube::HyperCube(int dims, vector<BitVal> const& fixedBits, 
+HyperCube::HyperCube(int dims, vector<BitVal> && fixedBits, 
   vector<u_int> const& elements, bool isCached): _dims(dims), 
                                   _fixedBits(fixedBits),
                                   _elements(elements),
                                   _isCached(isCached){
+  if(_isCached&&(_fixedBits.size()!=0)){
+    generateElements(_cachedElements);
+  }
 };
 
 u_int HyperCube::size() {
   return 1<<(_dims-_fixedBits.size());
 };
 
-/* There're 2 ways to retrieve Elements of a hypercube
-   The slow one is to calculate from  Elements from 
-   its unit cube and return. This fastest one is to
-   retrieve them from cache. 
+/* There're 2 ways to generate elements of a hypercube
+   The faster one is to calculate from elements from 
+   its cached unit_cube and return. This slower one is 
+   to create them from the scratch. 
 */
 void HyperCube::generateElements(vector<u_int>& v){
   if (_elements.empty()){
+    /* Only UnitCubes have _elements empty
+    */
     u_int leftBits, rightBits, value;
     u_int length = size();
     v=vector<u_int>();
@@ -34,6 +40,11 @@ void HyperCube::generateElements(vector<u_int>& v){
       v.push_back(value);
     };
   } else {
+    /*  If an UnitCube is cached, its Parallel HyperCubes can
+        take advantage of unitcube elements which has been 
+        generated to create their own elements. This way would
+        gain a better performance than creating from the scratch
+    */
     v = vector<u_int>(_elements);
     for(auto& bitval:_fixedBits){
       u_int mask = 1<<bitval.first;
@@ -44,22 +55,33 @@ void HyperCube::generateElements(vector<u_int>& v){
         };
       };
     };
+
   };
 };
 
+/*
+  Return the elements if cached; otherwise, generate them
+*/
 void HyperCube::getElements(vector<u_int>& v){
   if (_isCached){
+    // Generate elements and stored in a local var
     if (_cachedElements.empty()) {
       generateElements(_cachedElements);
     };
+    // stick the reference out of others using
     v=_cachedElements;
+  } else {
+    generateElements(v);
   };
-  generateElements(v);
 };
 
-vector<BitVal>& HyperCube::getFixedBits(){
+vector<BitVal>const& HyperCube::getFixedBits(){
   return _fixedBits;
 };
+
+bool HyperCube::isCached() {
+  return _cachedElements.size()==size();
+}
 
 HyperCube::~HyperCube(){
 };
