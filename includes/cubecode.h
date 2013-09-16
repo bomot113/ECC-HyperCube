@@ -22,8 +22,8 @@ class CubeCode {
     u_int getDataLength();
     u_int getCodewordLength();
     
-    BITSET encode(BITSET code) const;
-    BITSET decode(BITSET received) const;
+    virtual BITSET encode(BITSET code) const;
+    virtual BITSET decode(BITSET received) const;
     BITSET getCodeFromParity(BITSET parity, u_int dataLength) const;
     bool calcParityFromSourceBit(BITSET const& code, HyperCube& hCube) const;
      

@@ -15,7 +15,7 @@ USER_DIR = .
 CPPFLAGS += -I$(BOOST_DIR)
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -fms-extensions -O3 -std=c++0x 
+CXXFLAGS += -Wall -Wextra -fms-extensions -O3 -std=c++0x 
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
@@ -41,10 +41,15 @@ cubecode.o: $(SRC_DIR)/cubecode.cc $(INCLUDES_DIR)/cubecode.h $(INCLUDES_DIR)/hy
 				    $(INCLUDES_DIR)/hypercube.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(SRC_DIR)/cubecode.cc
 
-main.o : $(USER_DIR)/main.cc $(INCLUDES_DIR)/unitcube.h  \
-                     $(INCLUDES_DIR)/cubecode.h $(INCLUDES_DIR)/hypercube.h $(GTEST_HEADERS)
+reedmuller.o: $(SRC_DIR)/reedmuller.cc $(INCLUDES_DIR)/reedmuller.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(SRC_DIR)/reedmuller.cc
+
+main.o : $(USER_DIR)/main.cc 	$(INCLUDES_DIR)/reedmuller.h\
+														 	$(INCLUDES_DIR)/unitcube.h  \
+                     					$(INCLUDES_DIR)/cubecode.h \
+															$(INCLUDES_DIR)/hypercube.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/main.cc
 
-cubecode: main.o cubecode.o hypercube.o unitcube.o
+cubecode: main.o reedmuller.o cubecode.o hypercube.o unitcube.o
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) $^ -o $@ 
 
