@@ -9,7 +9,7 @@ Run:
   - $cat input | ./cubecode > output
   - Input file format:
       + First line: number of activities (or number of lines following)
-      + From second line to the end: each line defines r, m, activity type, and data respectively. 
+      + From second line to the end: each line defines r, m, activity type, cache mode, and data respectively. 
        ==> r is the order and m is the length (2^m) of reed muller codes. From my perspective, n would be the number of dimensions of block code and r would be the number of dimensions of the parity bits used to correct bit errors.
        ==> activity type: e-> encode, d-> decode.
        ==> cache mode: n-->none, p-->partial, f-->full
