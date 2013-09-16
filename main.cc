@@ -49,8 +49,8 @@ int main() {
       cout<< "Initialization in:"<<((double)t)/CLOCKS_PER_SEC<<" sec."<< endl;
       cout<< "Cached:"<<getCacheName(c)<<endl;
       cout<<"Meassage length(k):"<<cube->getDataLength()<<endl;
-      cout<<"Block length(n):"<<cube->getCodewordLength()<<endl;
-      cout<<"Rate(k/n):"<<((double)cube->getDataLength())/cube->getCodewordLength()<<endl;
+      cout<<"Block length(n):"<<cube->getCodewordLength()+1<<endl;
+      cout<<"Rate(k/n):"<<((double)cube->getDataLength()+1)/cube->getCodewordLength()<<endl;
       cout<<"Bit error tolerance:"<<((1<<r)-1)<<" bit(s)"<<endl;
 
       // encoding or decoding
