@@ -2,8 +2,11 @@
 #include "memory"
 class RM:public CubeCode {
 public:
-  RM(unsigned int r, unsigned int m, CACHE caType=CACHE::NONE)
-            :CubeCode(m, m-r-1, caType){}
+  unsigned int blockLength;
+  unsigned int messageLength;
+  double dataRate;
+  unsigned int errBitTol;
+  RM(unsigned int r, unsigned int m, CACHE caType=CACHE::NONE);
   BITSET encode(BITSET code) const;
   BITSET decode(BITSET received) const;
 };
