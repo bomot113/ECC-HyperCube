@@ -73,25 +73,25 @@ gtest_main.a : gtest-all.o gtest_main.o
 hypercube.o: $(SRC_DIR)/hypercube.cc $(INCLUDES_DIR)/hypercube.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(SRC_DIR)/hypercube.cc
 
-unitcube.o: $(SRC_DIR)/unitcube.cc $(INCLUDES_DIR)/unitcube.h $(INCLUDES_DIR)/hypercube.h
+unitcube.o: $(SRC_DIR)/unitcube.cc $(INCLUDES_DIR)/unitcube.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(SRC_DIR)/unitcube.cc
 
-cubecode.o: $(SRC_DIR)/cubecode.cc $(INCLUDES_DIR)/cubecode.h $(INCLUDES_DIR)/hypercube.h \
-				    $(INCLUDES_DIR)/hypercube.h
+cubecode.o: $(SRC_DIR)/cubecode.cc $(INCLUDES_DIR)/cubecode.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(SRC_DIR)/cubecode.cc
 
-cubecode_test.o : $(USER_DIR)/test/cubecode_test.cc $(INCLUDES_DIR)/unitcube.h  \
-                     $(INCLUDES_DIR)/cubecode.h $(INCLUDES_DIR)/hypercube.h $(GTEST_HEADERS)
+cubecode_test.o : $(USER_DIR)/test/cubecode_test.cc \
+									$(INCLUDES_DIR)/cubecode.h \
+									$(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/test/cubecode_test.cc
 
 hypercube_test.o : $(USER_DIR)/test/hypercube_test.cc $(INCLUDES_DIR)/hypercube.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/test/hypercube_test.cc
 
-unitcube_test.o : $(USER_DIR)/test/unitcube_test.cc $(INCLUDES_DIR)/unitcube.h  \
-                     $(INCLUDES_DIR)/hypercube.h $(GTEST_HEADERS)
+unitcube_test.o : $(USER_DIR)/test/unitcube_test.cc \
+									$(INCLUDES_DIR)/unitcube.h  \
+                  $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/test/unitcube_test.cc
 
 cubecode_unittest : cubecode_test.o hypercube_test.o unitcube_test.o cubecode.o hypercube.o unitcube.o gtest_main.a
-#cubecode_unittest : unitcube_test.o unitcube.o hypercube_test.o hypercube.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS)  $^ -o $@ 
 

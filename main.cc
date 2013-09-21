@@ -48,10 +48,10 @@ int main() {
       // Return code info
       cout<< "Initialization in:"<<((double)t)/CLOCKS_PER_SEC<<" sec."<< endl;
       cout<< "Cached:"<<getCacheName(c)<<endl;
-      cout<<"Meassage length(k):"<<cube->getDataLength()<<endl;
-      cout<<"Block length(n):"<<cube->getCodewordLength()+1<<endl;
-      cout<<"Rate(k/n):"<<((double)cube->getDataLength()+1)/cube->getCodewordLength()<<endl;
-      cout<<"Bit error tolerance:"<<((1<<r)-1)<<" bit(s)"<<endl;
+      cout<<"Meassage length(k):"<<cube->messageLength<<endl;
+      cout<<"Block length(n):"<<cube->blockLength<<endl;
+      cout<<"Rate(k/n):"<<cube->dataRate<<endl;
+      cout<<"Bit error tolerance:"<<cube->errBitTol<<" bit(s)"<<endl;
 
       // encoding or decoding
       switch (e){
