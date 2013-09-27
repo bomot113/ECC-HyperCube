@@ -1,6 +1,7 @@
 #include "includes/unitcube.h"
 UnitCube::UnitCube(unsigned int dims, u_int cubeIndex, bool isCached):
               HyperCube(dims, vector<BitVal>(),HyperCube::_emptyElements, isCached){
+  _pDimsOffsetNeeded=0;
   _cubeIndex = cubeIndex;
   for(unsigned int i=0; i<dims; i++){
     bool bit = (cubeIndex>>i)&1;
@@ -33,13 +34,20 @@ void UnitCube::initParallelHCubes(u_int limit, bool parallelCubeCached){
       unique_ptr<HyperCube> aCube = unique_ptr<HyperCube>(new HyperCube(_dims, move(aComb), elements, parallelCubeCached));
       _parallelHCubes.push_back(std::move(aCube));
       // if we get enough parallel hypercubes used for correcting bits, return
-      if(--length<=0) return;
+      if(--length<=0) {
+        _pDimsOffsetNeeded = _fixedBits.size()-bits;
+        return;
+      };
     } while(std::prev_permutation(bitmask.begin(),bitmask.end()));
   }
 };
 
 vector<unique_ptr<HyperCube> > const& UnitCube::getParallelHCubes() const{
   return _parallelHCubes;
+};
+
+unsigned int UnitCube::getPDimsOffsetNeeded() const {
+  return _pDimsOffsetNeeded;
 };
 
 UnitCube::~UnitCube(){

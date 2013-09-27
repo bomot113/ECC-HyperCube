@@ -16,7 +16,7 @@ USER_DIR = ..
 CPPFLAGS += -I$(GTEST_DIR)/include -I$(BOOST_DIR)
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -fms-extensions -O3 -std=c++0x 
+CXXFLAGS += -Wall -Wextra -fms-extensions -O5 -std=c++0x 
 
 # Flags passed to linker
 LDFLAGS = -pthread

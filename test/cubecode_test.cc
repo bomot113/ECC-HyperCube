@@ -108,12 +108,12 @@ TEST(CubeCodeTest, SetBitByIndex){
   EXPECT_EQ((u_int)26624, code.to_ulong());
 };
 
-TEST(CubeCodeTest, GetCodeFromParity){
+TEST(CubeCodeTest, TransCodeParity){
   unique_ptr<CubeCode> cube(new CubeCode(4,1));
   // parity = '111011110000000'
   BITSET parity(string("111011110000000"));
-  BITSET actual = cube->getCodeFromParity(parity, 7);
-  BITSET expected(string("100100100000000"));
+  BITSET actual = cube->transCodeParity(parity,0,1);
+  BITSET expected(string("100100000000000"));
   EXPECT_EQ(expected, actual);
 };
 
@@ -172,7 +172,7 @@ BITSET noiseChannel(BITSET bits, u_int flips){
 };
 
 TEST(CubeCodeTest, Decoding0BitErrorCode){
-  unique_ptr<CubeCode> cube(new CubeCode(4,1));
+  unique_ptr<CubeCode> cube(new CubeCode(4,1)); // Hamming Code
   /* Oringinal : '0b100100100101011' (18731)
      Received  : the same
      Decoded   : '0b10010010010'
@@ -185,7 +185,7 @@ TEST(CubeCodeTest, Decoding0BitErrorCode){
 };
 
 TEST(CubeCodeTest, Decoding1BitErrorCode){
-  unique_ptr<CubeCode> cube(new CubeCode(4,1));
+  unique_ptr<CubeCode> cube(new CubeCode(4,1)); // Hamming code
   // Data              : '0b10010010010'
   // Transmitting Code : '0b100100100101011'
   // Received          : '0b100100110101011'
@@ -198,32 +198,17 @@ TEST(CubeCodeTest, Decoding1BitErrorCode){
 };
 
 TEST(CubeCodeTest, Decoding3BitErrorCodeWith2ParityDims){
-  unique_ptr<CubeCode> cube(new CubeCode(4,2));
-  // Data              : '0b10110'
-  // Transmitting Code : '0b101100011000110'
-  // Received          : '0b101110001000010'
-  //                            ^  ^    ^
-  //                        3 Bits different
-  BITSET received(string("101110001000010"));
+  unique_ptr<CubeCode> cube(new CubeCode(4,2)); // first order RM
+  string bitmask(3,'1');
+  bitmask.resize(15, '0');
+  BITSET data(string("101100011000110"));
   BITSET expected(string("10110"));
-  BITSET actual = cube->decode(received);
-  EXPECT_EQ(expected, actual); 
-  // Data              : '0b10110'
-  // Transmitting Code : '0b101100011000110'
-  // Received          : '0b101100011101111'
-  //                                 ^ ^  ^
-  //                        3 Bits different
-  received = BITSET(string("101100011101111"));
-  actual = cube->decode(received);
-  EXPECT_EQ(expected, actual); 
-  // Data              : '0b10110'
-  // Transmitting code : '0b101100011000110'
-  // Received          : '0b011000011000110'
-  //                        ^^ ^
-  //                       3 Bits different
-  received = BITSET(string("011000011000110"));
-  actual = cube->decode(received);
-  EXPECT_EQ(expected, actual); 
+  do {
+    BITSET errors(bitmask);
+    BITSET received = errors ^ data;
+    BITSET actual = cube->decode(received);
+    EXPECT_EQ(expected, actual);
+  } while(prev_permutation(bitmask.begin(), bitmask.end()));
 };
 
 
@@ -240,6 +225,3 @@ TEST(CubeCodeTest, EncodingDecodingLongCode){
   BITSET decoded = cube->decode(received);
   EXPECT_EQ(data, decoded);
 };
- 
-
-
