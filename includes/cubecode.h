@@ -3,8 +3,9 @@
 using namespace std;
 class CubeCode {
   private:
-    unsigned int _cwDims;
-    unsigned int _pDims;
+    int _cwDims;
+    int _pDims;
+    int _dataDims;
     CACHE _caType;
     u_int _cwLength;
     u_int _dataLength;
@@ -16,22 +17,24 @@ class CubeCode {
     vector<u_int> _cube2Bits;
 
   public:
-    CubeCode(unsigned int cwDims, unsigned int pDims, CACHE caType=CACHE::NONE);
+    CubeCode(int cwDims, int pDims, CACHE caType=CACHE::NONE);
     bool getBitByIndex(BITSET const & code, u_int index) const;
     void setBitByIndex(BITSET& code, u_int index, bool bit) const;
+    UnitCube* getUCubeByBitIndex(u_int bitIndex) const;
     u_int getDataLength();
     u_int getCodewordLength();
     
     virtual BITSET encode(BITSET code) const;
     virtual BITSET decode(BITSET received) const;
-    BITSET getCodeFromParity(BITSET parity, u_int dataLength) const;
+    BITSET transCodeParity(BITSET parity, int fromDim, 
+                                            int toDim) const;
     bool calcParityFromSourceBit(BITSET const& code, HyperCube& hCube) const;
      
     vector<u_int>  const& getBit2Cubes();
     vector<u_int> const& getCube2Bits();
     vector<u_int> const& getCubesInLevel();
     
-    void getUnitCubes(unsigned int level, vector<u_int>& vector);
+    void getUnitCubes(int level, vector<u_int>& vector);
     vector<unique_ptr<UnitCube> > const& getUnitCubes();
     ~CubeCode();
 };
