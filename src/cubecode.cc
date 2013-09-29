@@ -201,8 +201,26 @@ BITSET CubeCode::decode(BITSET received) const{
         u_int lowerBitIndex = _cubesInLevel[dim-1];
         UnitCube* uCube = getUCubeByBitIndex(lowerBitIndex);
         int dimsOff = uCube->getPDimsOffsetNeeded();
-        BITSET mask = transCodeParity(fixedParity,dim+1,dim+dimsOff-1);
-        code ^=mask^fixedParity;
+        BITSET mask(fixedParity);
+        for(bitIndex=_cubesInLevel[dim+1];
+            bitIndex<_cubesInLevel[dim+dimsOff];bitIndex++){
+          u_int cubeIndex = _bit2Cubes[bitIndex];
+          bool sourceBit=0;
+          for(u_int bitIndex0=_cubesInLevel[dim];
+                    bitIndex0<_cubesInLevel[dim+1];bitIndex0++){
+            u_int cubeIndex0=_bit2Cubes[bitIndex0];
+            if ((cubeIndex0&cubeIndex)==cubeIndex) {
+              sourceBit^=getBitByIndex(fixedParity,bitIndex0);
+            };
+          };
+          if (sourceBit){
+            setBitByIndex(mask, bitIndex, 1);
+          };
+        };
+        code^=mask;
+        // The second way, much faster.
+        // BITSET mask = transCodeParity(fixedParity,dim+1,dim+dimsOff-1);
+        // code ^=mask^fixedParity;
       };
     };
     code = transCodeParity(parity,0,_dataDims);
