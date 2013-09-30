@@ -44,7 +44,7 @@ TEST(CubeCodeTest, Initialization) {
   vector<unique_ptr<HyperCube> > const& pHCubes = uCube->getParallelHCubes();
   vector<unique_ptr<HyperCube> >::const_iterator iter = pHCubes.begin();
   vector<BitVal>const& fBits = (*iter)->getFixedBits();
-  EXPECT_EQ(1,fBits[0].second);
+  EXPECT_EQ(0,fBits[0].second);
   EXPECT_EQ(1,fBits[1].second);
   EXPECT_EQ(1,fBits[2].second);
 };
@@ -61,7 +61,7 @@ TEST(CubeCodeTest, InitializationFullCache) {
   vector<unique_ptr<HyperCube> >::const_iterator iter = pHCubes.begin();
   vector<BitVal>const& fBits = (*iter)->getFixedBits();
   EXPECT_TRUE((*iter)->isCached());
-  EXPECT_EQ(1,fBits[0].second);
+  EXPECT_EQ(0,fBits[0].second);
   EXPECT_EQ(1,fBits[1].second);
   EXPECT_EQ(1,fBits[2].second);
 };
@@ -78,7 +78,7 @@ TEST(CubeCodeTest, InitializationPartialCache) {
   vector<unique_ptr<HyperCube> >::const_iterator iter = pHCubes.begin();
   vector<BitVal>const& fBits = (*iter)->getFixedBits();
   EXPECT_FALSE((*iter)->isCached());
-  EXPECT_EQ(1,fBits[0].second);
+  EXPECT_EQ(0,fBits[0].second);
   EXPECT_EQ(1,fBits[1].second);
   EXPECT_EQ(1,fBits[2].second);
 };
