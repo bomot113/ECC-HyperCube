@@ -83,5 +83,9 @@ bool HyperCube::isCached() {
   return _cachedElements.size()==size();
 }
 
+int HyperCube::getDims(){
+  return _dims;
+};
+
 HyperCube::~HyperCube(){
 };

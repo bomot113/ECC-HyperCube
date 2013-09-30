@@ -39,5 +39,6 @@ class HyperCube {
     void getElements(vector<u_int>& v);
     vector<BitVal>const& getFixedBits();
     bool isCached();
+    int getDims();
     virtual ~HyperCube();
 };
