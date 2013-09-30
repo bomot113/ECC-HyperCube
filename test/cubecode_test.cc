@@ -82,6 +82,20 @@ TEST(CubeCodeTest, InitializationPartialCache) {
   EXPECT_EQ(1,fBits[1].second);
   EXPECT_EQ(1,fBits[2].second);
 };
+
+TEST(CubeCodeTest, InitializationNearestParents) {
+  unique_ptr<CubeCode> code(new CubeCode(5,3));
+  
+  // Check the UnitCubes and their ParallelHCubes
+  vector<unique_ptr<UnitCube> > const& cubes = code->getUnitCubes();
+  unique_ptr<UnitCube> const&  uCube = cubes[30];
+  vector<u_int> np = uCube->getNearestParents();
+  EXPECT_EQ(np.size(),(size_t)4);
+  unique_ptr<UnitCube> const&  uCube2 = cubes[15];
+  np = uCube2->getNearestParents();
+  EXPECT_EQ(np.size(),(size_t)4);
+};
+
 TEST(CubeCodeTest, GetBitByIndex){
   unique_ptr<CubeCode> cube(new CubeCode(4,1));
   // 18720 = '100100100100000'
@@ -112,7 +126,7 @@ TEST(CubeCodeTest, TransCodeParity){
   unique_ptr<CubeCode> cube(new CubeCode(4,1));
   // parity = '111011110000000'
   BITSET parity(string("111011110000000"));
-  BITSET actual = cube->transCodeParity(parity,0,1);
+  BITSET actual = cube->transCodeParity(parity,0,2);
   BITSET expected(string("100100000000000"));
   EXPECT_EQ(expected, actual);
 };

@@ -15,11 +15,13 @@ class CubeCode {
     vector<u_int> _cubesInLevel;
     vector<u_int> _bit2Cubes;
     vector<u_int> _cube2Bits;
-
+    vector<u_int> _nearestParents;
   public:
     CubeCode(int cwDims, int pDims, CACHE caType=CACHE::NONE);
     bool getBitByIndex(BITSET const & code, u_int index) const;
     void setBitByIndex(BITSET& code, u_int index, bool bit) const;
+    bool flipBitByIndex(BITSET& code, u_int index) const;
+
     UnitCube* getUCubeByBitIndex(u_int bitIndex) const;
     u_int getDataLength();
     u_int getCodewordLength();
@@ -30,9 +32,10 @@ class CubeCode {
                                             int toDim) const;
     bool calcParityFromSourceBit(BITSET const& code, HyperCube& hCube) const;
      
-    vector<u_int>  const& getBit2Cubes();
+    vector<u_int> const& getBit2Cubes();
     vector<u_int> const& getCube2Bits();
     vector<u_int> const& getCubesInLevel();
+    vector<u_int> const& getNearestParents() const;
     
     void getUnitCubes(int level, vector<u_int>& vector);
     vector<unique_ptr<UnitCube> > const& getUnitCubes();

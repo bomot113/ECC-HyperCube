@@ -7,7 +7,7 @@ CubeCode::CubeCode(int cwDims, int pDims, CACHE caType)
         :_cwDims(cwDims), _pDims(pDims), _caType(caType)
 {
   _cwLength = (1<<_cwDims)-1;
-  _votes = (1<<(_pDims+1))-1;
+  _votes = (1<<(_pDims+1))-2;
   _neededVotes = 1<<_pDims;
   // Establishing caching mode
   bool unitCubeCached = false;
@@ -44,13 +44,21 @@ CubeCode::CubeCode(int cwDims, int pDims, CACHE caType)
   
   // data length = codeword length - parity length
   _dataLength = _cubesInLevel[_cwDims-_pDims]; 
-  _dataDims=_cwDims-_pDims-1; 
-  
+  _dataDims=_cwDims-_pDims; 
+ 
+  int dimsOff=0; 
   // Init parallel HyperCubes   
-  for(u_int bitIndex=0;bitIndex<_dataLength;bitIndex++){
-    u_int cubeIndex = _bit2Cubes[bitIndex];
-    _unitCubes[cubeIndex]->initParallelHCubes(_votes, parallelCubeCached);
-  }
+  for(int dim=0;dim<_dataDims;dim++){
+    u_int cubeIndex=0;
+    for(u_int bitIndex=_cubesInLevel[dim];
+              bitIndex<_cubesInLevel[dim+1]; 
+              bitIndex++){
+      cubeIndex = _bit2Cubes[bitIndex];
+      _unitCubes[cubeIndex]->initParallelHCubes(_votes, parallelCubeCached);
+      _unitCubes[cubeIndex]->initNearestParents(dimsOff);
+    };
+    dimsOff = _unitCubes[cubeIndex]->getPDimsOffsetNeeded()-1;
+  };
 
   // Initialize cube2Bits mapping
   _cube2Bits=vector<u_int>(_cwLength+1, 0);
@@ -82,6 +90,10 @@ bool CubeCode::getBitByIndex(BITSET const& code, u_int index) const{
   return code[_cwLength-index-1];
 };
 
+bool CubeCode::flipBitByIndex(BITSET& code, u_int index) const{
+  return (code[_cwLength-index-1]^=1);
+};
+
 void CubeCode::setBitByIndex(BITSET& code, u_int index, bool bit) const{
   code[_cwLength-index-1]=bit;  
 };
@@ -110,7 +122,7 @@ BITSET CubeCode::transCodeParity(BITSET parity,
   // Loop through parity bits, retrieve its location in 
   // the HyperCube and its UnitCubes to compute the source bit
   BITSET code(_cwLength);
-  for(u_int i=_cubesInLevel[fromDim];i<_cubesInLevel[toDim+1];i++){
+  for(u_int i=_cubesInLevel[fromDim];i<_cubesInLevel[toDim];i++){
     UnitCube* uCube = getUCubeByBitIndex(i);
     vector<u_int> subUCubes;
     uCube->getElements(subUCubes);
@@ -170,7 +182,7 @@ BITSET CubeCode::decode(BITSET received) const{
     // Correct parity bits first
     bool bit;
     BITSET fixedParity(_cwLength); // fixed parity of the current dim
-    for(int dim=_dataDims;dim>=0;dim--){
+    for(int dim=_dataDims;dim-->=0;){
       fixedParity.reset();
       for(bitIndex=_cubesInLevel[dim];bitIndex<_cubesInLevel[dim+1];bitIndex++){
         UnitCube* uCube = getUCubeByBitIndex(bitIndex);
@@ -179,52 +191,71 @@ BITSET CubeCode::decode(BITSET received) const{
         // Voting
         parityBit = 0;
         u_int vote[] = {0,0};
-        bit=0;
+
+        // first, get parity of the unit cube
+        bit=calcParityFromSourceBit(code,*uCube);
+        vote[bit]++;
+
+        // then, get the parity of its parallel cubes
         for(auto& cube:parallelCubes){
           bit = calcParityFromSourceBit(code, *cube);
           vote[bit]++;
           if (vote[bit]==_neededVotes){
             parityBit = bit;
-            break;
+            break;  //got enough polls, bounce.
           };
         };
         if (parityBit) {
           setBitByIndex(fixedParity, bitIndex, 1);
         }; 
       };
+
       // update paritiy
       parity|=fixedParity;
 
-      // in order to use voting technique at the lower dim
+      // in order to use voting technique at the lower dims
       // code bits needs modifying
       if (dim>0) {
-        u_int lowerBitIndex = _cubesInLevel[dim-1];
-        UnitCube* uCube = getUCubeByBitIndex(lowerBitIndex);
-        int dimsOff = uCube->getPDimsOffsetNeeded();
-        BITSET mask(fixedParity);
-        for(bitIndex=_cubesInLevel[dim+1];
-            bitIndex<_cubesInLevel[dim+dimsOff];bitIndex++){
-          u_int cubeIndex = _bit2Cubes[bitIndex];
-          bool sourceBit=0;
-          for(u_int bitIndex0=_cubesInLevel[dim];
-                    bitIndex0<_cubesInLevel[dim+1];bitIndex0++){
-            u_int cubeIndex0=_bit2Cubes[bitIndex0];
-            if ((cubeIndex0&cubeIndex)==cubeIndex) {
-              sourceBit^=getBitByIndex(fixedParity,bitIndex0);
+
+        /*
+         * a naive method as an alternative for transCodeParity.
+         * because of the uniquity of bit string that only has
+         * bits set in a specific dim. For ex:0 0000 101001 0000
+         * No need to use the traditional method, the performance 
+         * could be improved here.
+         */
+        bool lowerBit;
+        u_int upperBitIndex;
+        for(u_int bitIndex=_cubesInLevel[dim];
+                  bitIndex<_cubesInLevel[dim+1];bitIndex++){
+          lowerBit = getBitByIndex(fixedParity,bitIndex);
+          if (lowerBit){
+            UnitCube* uCube=getUCubeByBitIndex(bitIndex);
+            vector<u_int> const& parents=uCube->getNearestParents();
+            for(auto& pCube:parents){
+              upperBitIndex = _cube2Bits[pCube]; 
+              flipBitByIndex(fixedParity,upperBitIndex);
             };
           };
-          if (sourceBit){
-            setBitByIndex(mask, bitIndex, 1);
-          };
         };
-        code^=mask;
-        // The second way, much faster.
-        // BITSET mask = transCodeParity(fixedParity,dim+1,dim+dimsOff-1);
-        // code ^=mask^fixedParity;
+        code^=fixedParity;
+
+        /*
+         * // The second way.
+         * u_int lowerBitIndex = _cubesInLevel[dim-1];
+         * UnitCube* uCube = getUCubeByBitIndex(lowerBitIndex);
+         * int dimsOff = uCube->getPDimsOffsetNeeded();
+         * BITSET mask = transCodeParity(fixedParity,dim+1,dim+dimsOff);
+         * code ^=mask^fixedParity;
+         */
       };
     };
+
+    // after finding out the original parity bits,
+    // it's safe to transform them back to source bits
     code = transCodeParity(parity,0,_dataDims);
   };
+
   // shrink parity bits and return only data bits
   BITSET result = code>>(_cwLength-_dataLength);
   result.resize(_dataLength);

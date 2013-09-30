@@ -58,15 +58,28 @@ TEST(UnitCubeTest, GetElements){
   EXPECT_EQ(elements, exp_elements); 
 };
 
-TEST(UnitCubeTest, GetNearestParents){
+TEST(UnitCubeTest, InitNearestParents){
   vector<u_int> a;
   unique_ptr<UnitCube> uCube(new UnitCube(4, 13, true));
-  uCube->initParallelHCubes(6);
-  vector<u_int> const&  nearestParents = uCube->getNearestParents();
-  int arr[] = {12,9,5,8,4,1};
-  vector<u_int> exp_elements(arr, arr + sizeof(arr)/sizeof(u_int));
+
+  uCube->initNearestParents(1);
+  vector<u_int> nearestParents = uCube->getNearestParents();
+  int arr[] = {12,9,5};
+  vector<u_int> exp_elements(arr, arr + 3);
+  EXPECT_EQ(nearestParents, exp_elements); 
+
+  uCube->initNearestParents(2);
+  nearestParents = uCube->getNearestParents();
+  int arr2[] = {12,9,5,8,4,1};
+  exp_elements.assign(arr2, arr2 + 6);
+  EXPECT_EQ(nearestParents, exp_elements); 
+
+  uCube->initNearestParents(0);
+  nearestParents = uCube->getNearestParents();
+  exp_elements.clear();
   EXPECT_EQ(nearestParents, exp_elements); 
 };
+
 
 TEST(UnitCubeTest, GetElementsWithCache){
   vector<u_int> a;
