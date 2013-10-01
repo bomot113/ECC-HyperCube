@@ -240,14 +240,14 @@ BITSET CubeCode::decode(BITSET received) const{
         };
         code^=fixedParity;
 
-        /*
-         * // The second way.
-         * u_int lowerBitIndex = _cubesInLevel[dim-1];
-         * UnitCube* uCube = getUCubeByBitIndex(lowerBitIndex);
-         * int dimsOff = uCube->getPDimsOffsetNeeded();
-         * BITSET mask = transCodeParity(fixedParity,dim+1,dim+dimsOff);
-         * code ^=mask^fixedParity;
-         */
+         /*
+          * // The second way.
+          *u_int lowerBitIndex = _cubesInLevel[dim-1];
+          *UnitCube* uCube = getUCubeByBitIndex(lowerBitIndex);
+          *int dimsOff = uCube->getPDimsOffsetNeeded();
+          *BITSET mask = transCodeParity(fixedParity,dim+1,dim+dimsOff-1);
+          *code ^=mask^fixedParity;
+          */
       };
     };
 
